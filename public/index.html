@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Websocket Chat Test</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js" integrity="sha512-Xm9qbB6Pu06k3PUwPj785dyTl6oHxgsv9nHp7ej7nCpAqGZT3OZpsELuCYX05DdonFpTlBpXMOxjavIAIUwr0w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script defer src="./assets/js/app.js"></script>
+</head>
+
+<body>
+    <form id="form-join" class="form-join">
+        <input type="text" id="form-join-name" maxlength="8" placeholder="Your name" size="5" required>
+        <input type="text" id="form-join-room" placeholder="Chat room" size="5" required>
+        <button id="join" type="submit">Join</button>
+    </form>
+
+    <form id='form-message' class="form-message">
+        <input id='form-message-input' type="text" placeholder="Your message">
+        <button>Send</button>
+    </form>
+
+    <ul id='chat-messages' class='chat-messages'></ul>
+    <p id='message-activity' class="message-activity"></p>
+
+    <p id="user-list" class="user-list"></p>
+
+    <p id="room-list" class="room-list"></p>
+
+</body>
+
+</html>
