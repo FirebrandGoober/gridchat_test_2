@@ -1,5 +1,5 @@
 // const socket = io( 'ws://localhost:3500' );
-const socket = io( 'ws://localhost:3500' );
+const socket = io( 'https://gridchat-test-2.onrender.com' );
 
 // Activity detection element.
 const activity = document.querySelector( '#message-activity' );
