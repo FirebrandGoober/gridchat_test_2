@@ -56,7 +56,7 @@ io.on( 'connection', ( socket ) => {
         const user = initUser( socket.id, "Anonymous_" + Math.ceil( Math.random() * 1000000 ), 'general' );
         socket.emit( 'onConnect', user );
 
-        socket.emit( 'message', buildMsg( ADMIN, "Welcome to the chat!", user.room ) );
+        socket.emit( 'message', formatMsg( ADMIN, "Welcome to the chat!", user.room ) );
 
     } )
 
@@ -74,7 +74,7 @@ io.on( 'connection', ( socket ) => {
                 socket.leave( prevRoom );
 
                 // Send a message to the room we just left.
-                io.to( prevRoom ).emit( 'message', buildMsg( ADMIN, `${ name } has left the room.` ) );
+                io.to( prevRoom ).emit( 'message', formatMsg( ADMIN, `${ name } has left the room.` ) );
             }
 
             const user = initUser( socket.id, name, room );
@@ -91,10 +91,10 @@ io.on( 'connection', ( socket ) => {
             socket.join( user.room );
 
             // To user that joined.
-            socket.emit( 'message', buildMsg( ADMIN, `You have joined the ${ user.room } chat room.` ) );
+            socket.emit( 'message', formatMsg( ADMIN, `You have joined the ${ user.room } chat room.` ) );
 
             // To everyone else.
-            socket.broadcast.to( user.room ).emit( 'message', buildMsg( ADMIN, `${ user.name } has joined the room.` ) );
+            socket.broadcast.to( user.room ).emit( 'message', formatMsg( ADMIN, `${ user.name } has joined the room.` ) );
 
 
             // Update new room user list.
@@ -115,10 +115,10 @@ io.on( 'connection', ( socket ) => {
             socket.join( user.room );
 
             // To user that joined.
-            socket.emit( 'message', buildMsg( ADMIN, `You have joined the ${ user.room } chat room.` ) );
+            socket.emit( 'message', formatMsg( ADMIN, `You have joined the ${ user.room } chat room.` ) );
 
             // To everyone else.
-            socket.broadcast.to( user.room ).emit( 'message', buildMsg( ADMIN, `${ user.name } has joined the room.` ) );
+            socket.broadcast.to( user.room ).emit( 'message', formatMsg( ADMIN, `${ user.name } has joined the room.` ) );
 
 
             // Update new room user list.
@@ -144,14 +144,14 @@ io.on( 'connection', ( socket ) => {
         userLeaves( user );
 
         if ( user ) {
-            io.to( user.room ).emit( 'message', buildMsg( ADMIN, `${ user.name } has left the room` ) );
+            io.to( user.room ).emit( 'message', formatMsg( ADMIN, `${ user.name } has left the room` ) );
 
             io.to( user.room ).emit( 'userList', {
                 users: getRoomUsers( user.room )
             } );
 
             // Update roomlist; if nobody in room, delete room.
-            io.emit( 'roomList' );
+            io.emit( 'roomList', getActiveRooms() );
         }
     } );
 
@@ -162,7 +162,7 @@ io.on( 'connection', ( socket ) => {
         if ( userId ) {
             const room = userId.room;
             if ( room ) {
-                io.to( room ).emit( 'message', buildMsg( name, text ) );
+                io.to( room ).emit( 'message', formatMsg( name, text ) );
             }
         } else {
             const user = initUser( socket.id, name, "general" );
@@ -178,9 +178,15 @@ io.on( 'connection', ( socket ) => {
         const user = initUser( socket.id, name, room );
         socket.emit( 'initUser', user );
     } );
+
+    socket.on( 'createRoom', ( room ) => {
+        createRoom( room );
+        socket.emit( 'roomList', getActiveRooms() );
+        io.emit( 'roomList', getActiveRooms() );
+    } );
 } );
 
-function buildMsg( name, text ) {
+function formatMsg( name, text ) {
     return {
         name,
         text,
@@ -192,8 +198,24 @@ function buildMsg( name, text ) {
     }
 }
 
+// Room functions
+function initRoom( newroom ) {
+    if ( newroom === undefined || newroom === null ) {
+        newroom = "general";
+    }
+    RoomsState.setUsers( [
+        ...RoomsState.users.filter( room => room !== newroom ),
+        room
+    ] );
+
+    return newroom;
+}
+
 // User functions
 function initUser( id, name, room ) {
+    if ( room === undefined || room === null ) {
+        room = "general";
+    }
     const user = {
         id: id,
         name: name,
@@ -208,15 +230,6 @@ function initUser( id, name, room ) {
     return user;
 }
 
-// User functions
-function activateUser( id, name, room ) {
-    const user = { id, name, room };
-    UsersState.setUsers( [
-        ...UsersState.users.filter( user => user.id !== id ),
-        user
-    ] );
-    return user;
-}
 
 function userLeaves( id ) {
     const user = { id };

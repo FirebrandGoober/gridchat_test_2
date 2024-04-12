@@ -1,19 +1,49 @@
-// const socket = io( 'ws://localhost:3500' );
-const socket = io( 'https://gridchat-test-2.onrender.com' );
+const _ENV = 'development';
+const socket = _ENV === 'development' ?
+    ( io( 'ws://localhost:3500' ) ) :
+    ( _ENV === 'production' ?
+        ( io( 'https://gridchat-test-2.onrender.com' ) ) :
+        ( io( 'ws://localhost:3500' ) ) );
 
 // Activity detection element.
-const activity = document.querySelector( '#message-activity' );
+const activity = document.querySelector( '#content-activity' );
 const msgInput = document.querySelector( '#form-message-input' );
-const nameInput = document.querySelector( '#form-join-name' );
-const roomInput = document.querySelector( '#form-join-room' );
-const userList = document.querySelector( '#user-list' );
-const roomList = document.querySelector( '#room-list' );
-const chatMessages = document.querySelector( '#chat-messages' );
+const nameInput = document.querySelector( '#form-name-input' );
+const roomInput = document.querySelector( '#form-room-input' );
+const userList = document.querySelector( '#content-user-list' );
+const roomList = document.querySelector( '#content-room-list' );
+const chatMessages = document.querySelector( '#content-messages' );
 
 // $( document ).ready( function () {
 document.addEventListener( 'DOMContentLoaded', function() {
     socket.emit( 'onConnect' );
+    document
+        .querySelector( '#form-message' )
+        .addEventListener( 'submit', sendMessage );
+
+    document
+        .querySelector( '#form-name' )
+        .addEventListener( 'submit', createUser );
+
+    document
+        .querySelector( '#form-room' )
+        .addEventListener( 'submit', enterRoom );
+
 } );
+
+function toggleSidebarLeft() {
+    document
+        .querySelector( '.sidebar-left' )
+        .classList
+        .toggle( 'active' );
+}
+
+function toggleSidebarRight() {
+    document
+        .querySelector( '.sidebar-right' )
+        .classList
+        .toggle( 'active' );
+}
 
 // On form submit, send message.
 function sendMessage( e ) {
@@ -31,6 +61,22 @@ function sendMessage( e ) {
     msgInput.focus();
 }
 
+const createUser = ( e ) => {
+    e.preventDefault();
+    if ( nameInput.value ) {
+        // Notify the server.
+        socket.emit( 'initUser', { name: nameInput.value } );
+    }
+}
+
+const createRoom = ( e ) => {
+    e.preventDefault();
+    if ( roomInput.value ) {
+        // Notify the server.
+        socket.emit( 'createRoom', { room: roomInput.value } );
+    }
+}
+
 const enterRoom = ( e ) => {
     e.preventDefault();
     if ( nameInput.value && roomInput.value ) {
@@ -44,14 +90,6 @@ const enterRoom = ( e ) => {
         chatMessages.innerHTML = '';
     }
 }
-
-document
-    .querySelector( '#form-message' )
-    .addEventListener( 'submit', sendMessage );
-
-document
-    .querySelector( '#form-join' )
-    .addEventListener( 'submit', enterRoom );
 
 msgInput.addEventListener( 'keypress', () => {
     // On keypress, notify server.
@@ -67,7 +105,7 @@ socket.on( "message", ( data ) => {
     li.textContent = data.text;
     console.log( data );
     document
-        .querySelector( '#chat-messages' )
+        .querySelector( '#content-messages' )
         .appendChild( li );
 } );
 */
@@ -85,19 +123,21 @@ socket.on( 'initUser', ( data ) => {
 } )
 
 socket.on( "message", ( data ) => {
+    // All messages visible in the current room for a given user.
     activity.textContent = ""
     const { name, text, timeStamp } = data
     const li = document.createElement( 'li' );
 
     console.log( 'Message received: ', data );
     li.className = 'post'
-    if ( name === nameInput.value ) li.className = 'post post-left'
-    if ( name !== nameInput.value && name !== 'Admin' ) li.className = 'post post-right'
+    if ( name === nameInput.value )
+        li.className = 'post post-left'
+    if ( name !== nameInput.value && name !== 'Admin' )
+        li.className = 'post post-right'
     if ( name !== 'Admin' ) {
         li.innerHTML = `<div class="post-header ${name === nameInput.value
             ? 'post-header-user'
-            : 'post-header-reply'
-            }">
+            : 'post-header-reply'}">
         <span class="post-header-name">${name}</span> 
         <span class="post-header-time">${timeStamp}</span> 
         </div>
@@ -105,7 +145,9 @@ socket.on( "message", ( data ) => {
     } else {
         li.innerHTML = `<div class="post-text">${text}</div>`
     }
-    document.querySelector( '#chat-messages' ).appendChild( li )
+    document
+        .querySelector( '#content-messages' )
+        .appendChild( li )
 
     chatMessages.scrollTop = chatMessages.scrollHeight
 } )
@@ -122,7 +164,6 @@ socket.on( 'activity', ( name ) => {
         activity.textContent = '';
     }, activityTimerLength );
 } );
-
 
 socket.on( 'userList', ( { users } ) => {
     showUsers( users );

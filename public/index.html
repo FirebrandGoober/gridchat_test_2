@@ -13,24 +13,76 @@
 </head>
 
 <body>
-    <form id="form-join" class="form-join">
-        <input type="text" id="form-join-name" maxlength="8" placeholder="Your name" size="5" required>
-        <input type="text" id="form-join-room" placeholder="Chat room" size="5" required>
-        <button id="join" type="submit">Join</button>
-    </form>
+    <div class="container">
 
-    <form id='form-message' class="form-message">
-        <input id='form-message-input' type="text" placeholder="Your message">
-        <button>Send</button>
-    </form>
+        <div class="header">
 
-    <ul id='chat-messages' class='chat-messages'></ul>
-    <p id='message-activity' class="message-activity"></p>
+            <div class="header-left">
+                <button class="button hamburger" onclick="toggleSidebarLeft()"><☰</button>
+            </div>
+            <div class="header-center"></div>
+            <div class="header-right">
+                <button class="button hamburger" onclick="toggleSidebarRight()">☰></button>
+            </div>
+        </div>
+        <div class="page">
+            <div class="sidebar sidebar-left">
 
-    <p id="user-list" class="user-list"></p>
+                <div class="sidebar-header">
+                    USERS
+                </div>
+                <div class="sidebar-body">
 
-    <p id="room-list" class="room-list"></p>
+                    <div id="content-user-list" class="content-user-list"></div>
 
+                </div>
+            </div>
+            <div class="content">
+
+                <div class="content-header">
+                    <div class="content-room-title" id="content-room-title">#ROOMNAME#</div>
+                </div>
+                <div class="content-body">
+
+                    <ul id='content-messages' class='content-messages'></ul>
+
+                </div>
+                <div class="content-input">
+                    <form id='form-message' class="form-message">
+                        <input id='form-message-input' type="text" placeholder="Your message">
+                        <button>Send</button>
+                    </form>
+                </div>
+                <div id='content-activity' class="content-activity"></div>
+            </div>
+            <div class="sidebar sidebar-right">
+                <div class="sidebar-header">
+                    ROOMS
+                </div>
+                <hr class="sidebar-divider" />
+                <form id="form-name" class="form-name">
+                    <input type="text" id="form-name-input" maxlength="8" placeholder="Your name" size="5" required>
+                    <button id="form-name-submit" type="submit">Save</button>
+                </form>
+                <form id="form-room" class="form-room-input">
+                    <input type="text" id="form-room" placeholder="Chat room" size="5" required>
+                    <div class="field-input">
+                        <select id="select-room" class="select">
+                            <option>Test</option>
+                        </select>
+                    </div>
+                    <button id="form-room-submit" type="submit">Go</button>
+                </form>
+                <hr class="sidebar-divider" />
+                <div class="sidebar-body">
+                    <div id="content-room-list" class="content-room-list"></div>
+                </div>
+
+            </div>
+        </div>
+        <div class="footer"></div>
+
+    </div>
 </body>
 
 </html>
